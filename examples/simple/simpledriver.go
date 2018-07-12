@@ -56,13 +56,15 @@ func (s *SimpleDriver) HandleOperation(ro *models.ResourceOperation,
 	cr := &gxds.CommandResult{RO: ro, Type: gxds.Bool, BoolResult: true}
 
 	send <- cr
-	close(cr)
+	close(send)
 }
 
 // Stop the protocol-specific DS code to shutdown gracefully, or
 // if the force parameter is 'true', immediately. The driver is responsible
 // for closing any in-use channels, including the channel used to send async
 // readings (if supported).
-func (s *SimpleDriver) Stop(force bool) {
+func (s *SimpleDriver) Stop(force bool) error {
 	s.lc.Debug(fmt.Sprintf("Stop called: force=%v", force))
+
+	return nil
 }

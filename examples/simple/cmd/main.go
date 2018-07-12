@@ -72,5 +72,5 @@ func startService(useRegistry bool, profile string, confDir string) error {
 		fmt.Fprintf(os.Stderr, "Exiting on %s signal.\n", sig)
 	}
 
-	return s.Stop()
+	return s.Stop(true)
 }

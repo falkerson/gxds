@@ -236,6 +236,7 @@ func (s *Service) Start(useRegistry bool, profile, confDir string) (err error) {
 	} else {
 		consulMsg = "Bypassing Consul configuration..."
 	}
+	fmt.Print(consulMsg)
 
 	// TODO: validate that metadata and core config settings are set
 	err = s.validateClientConfig()
