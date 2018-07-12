@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 
 	consulclient "github.com/edgexfoundry/edgex-go/support/consul-client"
 	"github.com/tonyespy/gxds"
@@ -22,11 +23,14 @@ func ConnectToConsul(DeviceServiceName string, conf *gxds.Config) error {
 
 	if err != nil {
 		return fmt.Errorf("connection to Consul could not be made: %v", err.Error())
-	} /* else {
+	} else {
 		// Update configuration data from Consul
-		/*if err := consulclient.CheckKeyValuePairs(&conf, internal.CoreDataServiceKey, strings.Split(conf.ConsulProfilesActive, ";")); err != nil {
+		if err := consulclient.CheckKeyValuePairs(
+			&conf,
+			DeviceServiceName,
+			strings.Split(conf.Registry.ProfilesActive, ";")); err != nil {
 			return fmt.Errorf("error getting key/values from Consul: %v", err.Error())
 		}
-	}*/
+	}
 	return nil
 }

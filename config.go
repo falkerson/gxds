@@ -55,6 +55,8 @@ type service struct {
 	CheckAddress string
 	// Health check interval
 	CheckInterval string
+	// ???
+	ProfilesActive string
 }
 
 // DeviceInfo is a struct which contains device specific configuration settings.
