@@ -51,6 +51,10 @@ type service struct {
 	Host string
 	// Port is the HTTP port of a service.
 	Port int
+	// Health check url
+	CheckAddress string
+	// Health check interval
+	CheckInterval string
 }
 
 // DeviceInfo is a struct which contains device specific configuration settings.

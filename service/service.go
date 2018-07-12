@@ -216,7 +216,7 @@ func buildAddr(host string, port string) string {
 }
 
 // Start the service
-func (s *Service) Start(useRegistry bool, profile string, confDir string) (err error) {
+func (s *Service) Start(useRegistry bool, profile, confDir string) (err error) {
 	fmt.Fprintf(os.Stdout, "Init: useRegistry: %v profile: %s confDir: %s\n",
 		useRegistry, profile, confDir)
 
@@ -226,7 +226,16 @@ func (s *Service) Start(useRegistry bool, profile string, confDir string) (err e
 		return err
 	}
 
-	// TODO: add useRegistry logic
+	var consulMsg string
+	if useRegistry {
+		consulMsg = "Loading configuration from Consul..."
+		err := ConnectToConsul(s.Name, s.c)
+		if err != nil {
+			return err
+		}
+	} else {
+		consulMsg = "Bypassing Consul configuration..."
+	}
 
 	// TODO: validate that metadata and core config settings are set
 	err = s.validateClientConfig()
