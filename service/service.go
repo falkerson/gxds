@@ -15,7 +15,6 @@ package service
 import (
 	"github.com/tonyespy/gxds"
 
-	"bytes"
 	"fmt"
 	"net/http"
 	"os"
@@ -204,17 +203,6 @@ func (s *Service) validateClientConfig() error {
 	return nil
 }
 
-func buildAddr(host string, port string) string {
-	var buffer bytes.Buffer
-
-	buffer.WriteString(httpScheme)
-	buffer.WriteString(host)
-	buffer.WriteString(colon)
-	buffer.WriteString(port)
-
-	return buffer.String()
-}
-
 // Start the service
 func (s *Service) Start(useRegistry bool, profile, confDir string) (err error) {
 	fmt.Fprintf(os.Stdout, "Init: useRegistry: %v profile: %s confDir: %s\n",
@@ -236,7 +224,7 @@ func (s *Service) Start(useRegistry bool, profile, confDir string) (err error) {
 	} else {
 		consulMsg = "Bypassing Consul configuration..."
 	}
-	fmt.Print(consulMsg)
+	fmt.Println(consulMsg)
 
 	// TODO: validate that metadata and core config settings are set
 	err = s.validateClientConfig()
@@ -314,7 +302,7 @@ func (s *Service) Start(useRegistry bool, profile, confDir string) (err error) {
 		if s.initAttempts > 1 {
 			time.Sleep(30 * time.Second)
 		}
-
+		// TODO(apopovych): what idea behind this? Can we use
 		go s.attemptInit(done)
 		<-done // wait for background attempt to finish
 	}
@@ -371,7 +359,11 @@ func (s *Service) Stop(force bool) error {
 	return nil
 }
 
-// New Service
+func (s *Service) AddDevice(d *Device) error    {}
+func (s *Service) RemoveDevice(d *Device) error {}
+func (s *Service) UpdateDevice(d *Device) error {}
+
+// Factory method which creates new Service instance
 func New(name string, version string, proto gxds.ProtocolDriver) (*Service, error) {
 
 	if svc != nil {

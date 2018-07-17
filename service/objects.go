@@ -15,9 +15,21 @@ import (
 )
 
 var (
-	ocOnce  sync.Once
-	oc      *objectCache
+	ocOnce sync.Once
+	oc     *objectCache
 )
+
+// Wrapper for Device model to guarantee thread safety
+type objectDevice struct {
+	d  *models.Device
+	mu sync.RWMutex
+}
+
+// Wrapper for DeviceProfile model to guarantee thread safety
+type objectDeviceProfile struct {
+	dp *models.DeviceProfile
+	mu sync.RWMutex
+}
 
 type objectCache struct {
 	objects       map[string]map[string][]string

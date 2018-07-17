@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -153,4 +154,16 @@ func loadConfig(profile string, configDir string) (config *gxds.Config, err erro
 	}
 
 	return config, nil
+}
+
+// Build address
+func buildAddr(host string, port string) string {
+	var buffer bytes.Buffer
+
+	buffer.WriteString(httpScheme)
+	buffer.WriteString(host)
+	buffer.WriteString(colon)
+	buffer.WriteString(port)
+
+	return buffer.String()
 }
