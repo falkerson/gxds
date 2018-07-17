@@ -13,7 +13,7 @@ examples/simple/cmd/simple-device:
 	$(GO) build -o $@ ./examples/simple/cmd/ 
 
 test:
-	go test ./...
+	go test ./... -cover
 
 clean:
 	rm -f $(MICROSERVICES)

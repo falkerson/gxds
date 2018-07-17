@@ -229,7 +229,7 @@ func (s *Service) Start(useRegistry bool, profile, confDir string) (err error) {
 	var consulMsg string
 	if useRegistry {
 		consulMsg = "Loading configuration from Consul..."
-		err := ConnectToConsul(s.Name, s.c)
+		err := connectToConsul(s.Name, s.c)
 		if err != nil {
 			return err
 		}

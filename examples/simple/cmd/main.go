@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	serviceName    = "device-simple"
+	serviceName    = "device-simple1"
 	serviceVersion = "0.1"
 )
 

@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	"github.com/BurntSushi/toml"
 	consulapi "github.com/hashicorp/consul/api"
@@ -10,20 +11,71 @@ import (
 )
 
 var (
-	consulDefaultConfig = consulapi.DefaultConfig
-	consulNewClient     = consulapi.NewClient
+	consul *consulapi.Client = nil
 )
 
-func getConsulClient() (*consulapi.Client, error) {
-	return nil, nil
+// Return Consul client instance
+func getConsulClient(config *gxds.Config) (*consulapi.Client, error) {
+	consulUrl := config.Registry.Host + ":" + strconv.Itoa(config.Registry.Port)
+	defaultConfig := consulapi.DefaultConfig()
+	defaultConfig.Address = consulUrl
+
+	consul, err := consulapi.NewClient(defaultConfig)
+	if err != nil {
+		return nil, err
+	} else {
+		return consul, nil
+	}
 }
 
-func registerDeviceService() {
+// Register service in Consul and add health check
+func registerDeviceService(consul *consulapi.Client, deviceServiceName string, config *gxds.Config) error {
+	var err error
 
+	// Register device service
+	err = consul.Agent().ServiceRegister(&consulapi.AgentServiceRegistration{
+		Name:    deviceServiceName,
+		Address: config.Service.Host,
+		Port:    config.Service.Port,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Register the Health Check
+	err = consul.Agent().CheckRegister(&consulapi.AgentCheckRegistration{
+		Name:      "Health Check: " + deviceServiceName,
+		Notes:     "Check the health of the API",
+		ServiceID: deviceServiceName,
+		AgentServiceCheck: consulapi.AgentServiceCheck{
+			HTTP:     config.Registry.CheckAddress,
+			Interval: config.Registry.CheckInterval,
+		},
+	})
+
+	return err
 }
 
-func ConnectToConsul(DeviceServiceName string, config *gxds.Config) error {
+// TODO(apopovych) Store config data into Consul
+func storeConfigInConsul(consul *consulapi.Client, config *gxds.Config) error {
 	return nil
+}
+
+func connectToConsul(deviceServiceName string, config *gxds.Config) error {
+	var err error
+
+	consul, err = getConsulClient(config)
+	if err != nil {
+		return err
+	}
+
+	err = registerDeviceService(consul, deviceServiceName, config)
+	if err != nil {
+		return err
+	}
+	err = storeConfigInConsul(consul, config)
+
+	return err
 }
 
 // LoadConfig loads the local configuration file based upon the
