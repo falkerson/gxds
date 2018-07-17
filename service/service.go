@@ -220,7 +220,7 @@ func (s *Service) Start(useRegistry bool, profile, confDir string) (err error) {
 	fmt.Fprintf(os.Stdout, "Init: useRegistry: %v profile: %s confDir: %s\n",
 		useRegistry, profile, confDir)
 
-	s.c, err = gxds.LoadConfig(profile, confDir)
+	s.c, err = loadConfig(profile, confDir)
 	if err != nil {
 		s.lc.Error(fmt.Sprintf("error loading config file: %v\n", err))
 		return err

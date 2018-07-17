@@ -23,11 +23,17 @@ import (
 )
 
 const deviceCommandTest = "device-command-test"
+const deviceCommandTestVersion = "1.0"
 const testCmd = "TestCmd"
 
 // Test Command REST call when service is locked.
 func TestCommandServiceLocked(t *testing.T) {
-	ch := &commandHandler{fn: commandFunc}
+	// Setup dummy locked service with name and logger
+	// TODO (apopovych): Service should be mocked
+	lc := logger.NewClient("command_test", false, "./command_test.log")
+	s := &Service{Name: deviceCommandTest, locked: true, lc: lc}
+
+	ch := &commandHandler{s: s, fn: commandFunc}
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/%s/%s", v1Device, "nil", "nil"), nil)
 	req = mux.SetURLVars(req, map[string]string{"deviceId": "nil", "cmd": "nil"})
 
@@ -50,17 +56,15 @@ func TestCommandServiceLocked(t *testing.T) {
 // specify an existing device.
 func TestCommandNoDevice(t *testing.T) {
 	badDeviceId := "5abae51de23bf81c9ef0f390"
-
-	lc := logger.NewClient("command_test", false, "./command_test.log")
-
 	// Setup dummy service with logger, and mocked devices cache
 	// Empty cache will by default have no devices.
-	s := &Service{lc: lc}
-	newDeviceCache("fakeID")
+	lc := logger.NewClient("command_test", false, "./command_test.log")
+	s := &Service{Name: deviceCommandTest, lc: lc}
+	dc = &deviceCache{}
 
-	ch := &commandHandler{fn: commandFunc, s: s}
+	ch := &commandHandler{s: s, fn: commandFunc}
 	req := httptest.NewRequest("GET", fmt.Sprintf("%s/%s/%s", v1Device, badDeviceId, testCmd), nil)
-	req = mux.SetURLVars(req, map[string]string{"deviceId": badDeviceId, "cmd": testCmd})
+	req = mux.SetURLVars(req, map[string]string{"id": badDeviceId, "command": testCmd})
 
 	rr := httptest.NewRecorder()
 	ch.ServeHTTP(rr, req)
@@ -82,7 +86,7 @@ func TestCommandNoDevice(t *testing.T) {
 // by deviceId is locked.
 func TestCommandDeviceLocked(t *testing.T) {
 	// Empty cache will by default have no devices.
-	newDeviceCache("fakeID")
+	dc = &deviceCache{}
 
 	/* TODO: adding a device to the devices cache requires a live metadata instance. We need
 	 * create interfaces for all of the caches, so that they can be mocked in unit tests.
@@ -126,6 +130,6 @@ func TestCommandDeviceLocked(t *testing.T) {
 
 	if body != expected {
 		t.Errorf("DeviceLocked: handler returned wrong body:\nexpected: %s\ngot:      %s", expected, body)
-	}
-	*/
+	}*/
+
 }

@@ -38,15 +38,15 @@ func commandFunc(s *Service, w http.ResponseWriter, r *http.Request) {
 	d := dc.DeviceById(id)
 	if d == nil {
 		// TODO: standardize error message format (use of prefix)
-		msg := fmt.Sprintf("dev: %s not found; %s %s", id, r.Method, r.URL)
-		svc.lc.Error(msg)
+		msg := fmt.Sprintf("device: %s not found; %s %s", id, r.Method, r.URL)
+		s.lc.Error(msg)
 		http.Error(w, msg, http.StatusNotFound) // status=404
 		return
 	}
 
 	if d.AdminState == "LOCKED" {
 		msg := fmt.Sprintf("%s is locked; %s %s", id, r.Method, r.URL)
-		svc.lc.Error(msg)
+		s.lc.Error(msg)
 		http.Error(w, msg, http.StatusLocked) // status=423
 		return
 	}
@@ -61,14 +61,14 @@ func commandFunc(s *Service, w http.ResponseWriter, r *http.Request) {
 	// TODO: once cache locking has been implemented, this should never happen
 	if err != nil {
 		msg := fmt.Sprintf("internal error; dev: %s not found in cache; %s %s", id, r.Method, r.URL)
-		svc.lc.Error(msg)
+		s.lc.Error(msg)
 		http.Error(w, msg, http.StatusInternalServerError) // status=500
 		return
 	}
 
 	if !exists {
 		msg := fmt.Sprintf("%s for dev: %s not found; %s %s", cmd, id, r.Method, r.URL)
-		svc.lc.Error(msg)
+		s.lc.Error(msg)
 		http.Error(w, msg, http.StatusNotFound) // status=404
 		return
 	}
@@ -77,12 +77,12 @@ func commandFunc(s *Service, w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg := fmt.Sprintf("commandFunc: error reading request body for: %s %s", r.Method, r.URL)
-		svc.lc.Error(msg)
+		s.lc.Error(msg)
 	}
 
 	if len(body) == 0 && r.Method == http.MethodPut {
 		msg := fmt.Sprintf("no request body provided; %s %s", r.Method, r.URL)
-		svc.lc.Error(msg)
+		s.lc.Error(msg)
 		http.Error(w, msg, http.StatusBadRequest) // status=400
 		return
 	}
@@ -227,11 +227,11 @@ func executeCommand(s *Service, w http.ResponseWriter, d *models.Device, cmd str
 func (c *commandHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	svc.lc.Debug(fmt.Sprintf("*commandHandler: ServeHTTP %s url: %v vars: %v", r.Method, r.URL, vars))
+	c.s.lc.Debug(fmt.Sprintf("*commandHandler: ServeHTTP %s url: %v vars: %v", r.Method, r.URL, vars))
 	// TODO: use for all endpoints vs. having a StatusHandler, UpdateHandler, ...
 	if c.s.locked {
 		msg := fmt.Sprintf("%s is locked; %s %s", c.s.Name, r.Method, r.URL)
-		svc.lc.Error(msg)
+		c.s.lc.Error(msg)
 		http.Error(w, msg, http.StatusLocked) // status=423
 		return
 	}
