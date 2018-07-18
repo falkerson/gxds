@@ -1,22 +1,52 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	consulapi "github.com/hashicorp/consul/api"
 	"github.com/tonyespy/gxds"
 )
 
+const consulStatusPath = "/v1/agent/self"
+
 var (
 	consul *consulapi.Client = nil
+	// Need to set timeout because it hang until server close connection
+	// https://medium.com/@nate510/don-t-use-go-s-default-http-client-4804cb19f779
+	netClient = &http.Client{Timeout: time.Second * 10}
 )
 
 // Return Consul client instance
 func getConsulClient(config *gxds.Config) (*consulapi.Client, error) {
 	consulUrl := config.Registry.Host + ":" + strconv.Itoa(config.Registry.Port)
+	fails := 0
+	for fails < config.Registry.FailLimit {
+		// http.Get return error in case of wrong HTTP method or invalid URL
+		// so we need to check for invalid status.
+		response, err := netClient.Get(consulUrl + consulStatusPath)
+		if err != nil {
+			fmt.Println(err.Error())
+			time.Sleep(time.Second * time.Duration(config.Registry.FailWaitTime))
+			fails++
+			continue
+		}
+
+		if response.StatusCode >= 200 && response.StatusCode < 300 {
+			break
+		} else {
+			return nil, errors.New("Bad response from Consul service")
+		}
+	}
+	if fails >= config.Registry.FailLimit {
+		return nil, errors.New("Cannot get connection to Consul")
+	}
+
 	defaultConfig := consulapi.DefaultConfig()
 	defaultConfig.Address = consulUrl
 

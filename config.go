@@ -50,6 +50,10 @@ type service struct {
 	CheckInterval string
 	// ???
 	ProfilesActive string
+	// Maximum number of retries
+	FailLimit int
+	// Time to wait until next retry
+	FailWaitTime int64
 }
 
 // DeviceInfo is a struct which contains device specific configuration settings.

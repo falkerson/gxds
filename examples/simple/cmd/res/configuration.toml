@@ -9,7 +9,7 @@ ReadMaxLimit = 256
 Timeout = 5000
 
 [Registry]
-Host = "localhost"
+Host = "edgex.webzoom.top"
 Port = 8500
 CheckAddress = "http://localhost:49990/api/v1/ping"
 CheckInterval = "10s"
@@ -17,11 +17,11 @@ ProfilesActive = "go"
 
 [Clients]
   [Clients.Data]
-  Host = "localhost"
+  Host = "edgex.webzoom.top"
   Port = 48080
 
   [Clients.Metadata]
-  Host = "localhost"
+  Host = "edgex.webzoom.top"
   Port = 48081
 
 [Device]
