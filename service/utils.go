@@ -167,3 +167,33 @@ func buildAddr(host string, port string) string {
 
 	return buffer.String()
 }
+
+// Comare two string slices
+func compareStrings(a []string, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Compare two maps of strings
+func compareStrStrMap(a map[string]string, b map[string]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for k, av := range a {
+		if bv, ok := b[k]; !ok || av != bv {
+			return false
+		}
+	}
+
+	return true
+}

@@ -359,9 +359,17 @@ func (s *Service) Stop(force bool) error {
 	return nil
 }
 
-func (s *Service) AddDevice(d *Device) error    {}
-func (s *Service) RemoveDevice(d *Device) error {}
-func (s *Service) UpdateDevice(d *Device) error {}
+func (s *Service) AddDevice(d *models.Device) error {
+	return nil
+}
+
+func (s *Service) RemoveDevice(d *models.Device) error {
+	return nil
+}
+
+func (s *Service) UpdateDevice(d *models.Device) error {
+	return nil
+}
 
 // Factory method which creates new Service instance
 func New(name string, version string, proto gxds.ProtocolDriver) (*Service, error) {
